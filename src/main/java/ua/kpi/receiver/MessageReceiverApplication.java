@@ -11,20 +11,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @SpringBootApplication
 public class MessageReceiverApplication {
-
-  private final Runnable messageListener;
-
-  public MessageReceiverApplication(Runnable messageListener) {
-    this.messageListener = messageListener;
-  }
-
   public static void main(String[] args) {
     SpringApplication.run(MessageReceiverApplication.class, args);
-  }
-
-  @Bean
-  public CommandLineRunner schedulingRunner(
-      @Qualifier("applicationTaskExecutor") TaskExecutor executor) {
-    return args -> executor.execute(messageListener);
   }
 }

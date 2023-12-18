@@ -28,7 +28,6 @@ public class MessagesHandler {
 
   public void handleMessage(String message) {
     SensorData entity = parseMessage(message);
-    LOGGER.atInfo().log("Entity: " + entity);
     if (!entity.equals(new SensorData())) {
       messages.add(entity);
     }

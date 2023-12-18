@@ -1,16 +1,17 @@
-package ua.kpi.receiver.mqtt;
+package ua.kpi.receiver.service;
 
+import jakarta.annotation.PostConstruct;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
-public class MqttSubscriber {
-  private static final Logger LOGGER = LoggerFactory.getLogger(MqttSubscriber.class);
+@Service
+public class MqttService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(MqttService.class);
   private static final int QOS = 1;
 
   private final MqttClient mqttClient;
@@ -19,14 +20,12 @@ public class MqttSubscriber {
   @Value("${mqtt.topic}")
   private String MQTT_SUBSCRIBE_TOPIC;
 
-  public MqttSubscriber(
-      MqttClient mqttClient, MqttConnectOptions connectionOptions, SensorCallback sensorCallback) {
+  public MqttService(MqttClient mqttClient, MqttConnectOptions connectionOptions) {
     this.mqttClient = mqttClient;
     this.connectionOptions = connectionOptions;
-    // Set callback before subscribing to the topic to get unreceived messages.
-    mqttClient.setCallback(sensorCallback);
   }
 
+  @PostConstruct
   public void subscribeToTopic() throws MqttException {
     if (!mqttClient.isConnected()) {
       connect();

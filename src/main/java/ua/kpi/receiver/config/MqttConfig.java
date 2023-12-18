@@ -6,6 +6,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ua.kpi.receiver.mqtt.SensorCallback;
 
 @Configuration
 public class MqttConfig {
@@ -23,6 +24,12 @@ public class MqttConfig {
   @Value("${mqtt.password}")
   private String MQTT_PASSWORD;
 
+  private final SensorCallback sensorCallback;
+
+  public MqttConfig(SensorCallback sensorCallback) {
+    this.sensorCallback = sensorCallback;
+  }
+
   @Bean
   public MqttConnectOptions provideMqttConnectOptions() {
     MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
@@ -35,6 +42,9 @@ public class MqttConfig {
 
   @Bean
   public MqttClient provideMqttClient() throws MqttException {
-    return new MqttClient(String.format("tcp://%s:%d", MQTT_BROKER, MQTT_PORT), CLIENT_ID);
+    MqttClient mqttClient =
+        new MqttClient(String.format("tcp://%s:%d", MQTT_BROKER, MQTT_PORT), CLIENT_ID);
+    mqttClient.setCallback(sensorCallback);
+    return mqttClient;
   }
 }
