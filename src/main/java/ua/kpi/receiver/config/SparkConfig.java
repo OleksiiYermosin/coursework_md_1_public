@@ -9,8 +9,6 @@ import java.util.Map;
 
 @Configuration
 public class SparkConfig {
-  private static final String TABLE_NAME = "sensors_data";
-
   @Value("${spring.datasource.url}")
   private String datasourceUrl;
 
@@ -25,21 +23,11 @@ public class SparkConfig {
 
   @Bean
   public SparkSession provideSparkSession() {
-    return SparkSession.builder().master("local[4]").appName("ZalupaSpark").getOrCreate();
+    return SparkSession.builder().master("local[4]").appName("Spark").getOrCreate();
   }
 
   @Bean
   public Map<String, String> provideJdbcOptions() {
-    return Map.of(
-        "url",
-        datasourceUrl,
-        "driver",
-        jdbcDriver,
-        "dbtable",
-        TABLE_NAME,
-        "user",
-        user,
-        "password",
-        password);
+    return Map.of("url", datasourceUrl, "driver", jdbcDriver, "user", user, "password", password);
   }
 }

@@ -1,9 +1,5 @@
 package ua.kpi.receiver.handler;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -11,20 +7,16 @@ import org.springframework.stereotype.Component;
 import ua.kpi.receiver.entity.SensorData;
 import ua.kpi.receiver.repository.SensorDataRepository;
 
-import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Component
 public class MessagesHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(MessagesHandler.class);
-  private static final ObjectMapper OBJECT_MAPPER =
-      new ObjectMapper()
-          .configure(FAIL_ON_IGNORED_PROPERTIES, false)
-          .registerModule(new JavaTimeModule());
 
   private final List<SensorData> messages;
   private final SensorDataRepository sensorDataRepository;
@@ -40,7 +32,7 @@ public class MessagesHandler {
     if (!entity.equals(new SensorData())) {
       messages.add(entity);
     }
-    if (messages.size() > 500) {
+    if (messages.size() > 15) {
       scheduleFixedDelayTask();
     }
   }
@@ -53,20 +45,18 @@ public class MessagesHandler {
   }
 
   private SensorData parseMessage(String message) {
-    try (JsonParser jsonParser = OBJECT_MAPPER.createParser(message)) {
-      return validateSensorData(OBJECT_MAPPER.readValue(jsonParser, new TypeReference<>() {}));
-    } catch (IOException e) {
-      LOGGER.atError().log(String.format("Failed to parse message: %s; cause: %s", message, e));
-    }
-    return new SensorData();
-  }
-
-  private SensorData validateSensorData(SensorData sensorData) {
-    if (sensorData.getSensorId() == null
-        || sensorData.getLocation() == null
-        || sensorData.getTimestamp() == null) {
+    String[] columns = message.split(";");
+    if (columns.length != 4) {
+      LOGGER.atError().log("Invalid message: " + message);
       return new SensorData();
     }
-    return sensorData;
+    return SensorData.builder()
+        .macAddress(columns[0])
+        .timestamp(
+            LocalDateTime.parse(
+                columns[1], DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")))
+        .temperature(Double.valueOf(columns[2].replace(",", ".")))
+        .humidity(Double.valueOf(columns[3].replace(",", ".")))
+        .build();
   }
 }

@@ -5,14 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SensorDataDto {
-  private Long sensorId;
-  private String location;
-  private List<HumidityTemperatureTimeDto> data;
+public class HumidityTemperatureTimeDto {
+  private Double temperature;
+  private Double humidity;
+  private LocalDateTime timestamp;
 }

@@ -8,9 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ua.kpi.receiver.handler.MessagesHandler;
 
-import java.util.Arrays;
-import java.util.Base64;
-
 @Component
 public class SensorCallback implements MqttCallback {
   private static final Logger LOGGER = LoggerFactory.getLogger(SensorCallback.class);

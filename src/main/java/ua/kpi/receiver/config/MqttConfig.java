@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class MqttConfig {
-  private static final String CLIENT_ID = "Zalupa";
+  private static final String CLIENT_ID = "SpringClient";
 
   @Value("${mqtt.broker}")
   private String MQTT_BROKER;
